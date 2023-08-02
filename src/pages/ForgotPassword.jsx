@@ -18,7 +18,7 @@ import MuiAlert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
 import { useNavigate } from "react-router-dom";
 import BackgroundSheet from "../components/BackgroundSheet/BackgroundSheet";
-
+import CustomTextField from "../components/TextField/CustomTextField";
 const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -73,80 +73,75 @@ export default function ForgotPassword() {
   const ForgotPassword = () => {
     return (
       <>
-      <ThemeProvider theme={darkTheme}>
-                  <Container>
-                    <Box height={35} />
-                    <Box sx={center}>
-                      <Avatar
-                        sx={{ ml: "85px", mb: "4px", bgcolor: "#ffffff" }}
-                      >
-                        <LockOutlinedIcon />
-                      </Avatar>
-                      <Typography component="h1" variant="h4">
-                        Reset Password
-                      </Typography>
-                    </Box>
-                    <Box
-                      component="form"
-                      noValidate
-                      onSubmit={handleSubmit}
-                      sx={{ mt: 2 }}
+        <ThemeProvider theme={darkTheme}>
+          <Container>
+            <Box height={35} />
+            <Box sx={center}>
+              <Avatar sx={{ ml: "85px", mb: "4px", bgcolor: "#ffffff" }}>
+                <LockOutlinedIcon />
+              </Avatar>
+              <Typography component="h1" variant="h4">
+                Reset Password
+              </Typography>
+            </Box>
+            <Box
+              component="form"
+              noValidate
+              onSubmit={handleSubmit}
+              sx={{ mt: 2 }}
+            >
+              <Grid container spacing={1}>
+                <CustomTextField
+                  autoComplete="email"
+                  id="email"
+                  label="Username"
+                  name="email"
+                />
+                <Grid item xs={12} sx={{ ml: "5em", mr: "5em" }}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth="true"
+                    size="large"
+                    sx={{
+                      mt: "15px",
+                      mr: "20px",
+                      borderRadius: 28,
+                      color: "#ffffff",
+                      minWidth: "170px",
+                      backgroundColor: "#FF9A01",
+                    }}
+                  >
+                    Send Reset Link
+                  </Button>
+                </Grid>
+                <Grid item xs={12} sx={{ ml: "3em", mr: "3em" }}>
+                  <Stack direction="row" spacing={2}>
+                    <Typography
+                      variant="body1"
+                      component="span"
+                      style={{ marginTop: "10px" }}
                     >
-                      <Grid container spacing={1}>
-                        <Grid item xs={12} sx={{ ml: "3em", mr: "3em" }}>
-                          <TextField
-                            required
-                            fullWidth
-                            id="email"
-                            label="Email"
-                            name="email"
-                            autoComplete="email"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sx={{ ml: "5em", mr: "5em" }}>
-                          <Button
-                            type="submit"
-                            variant="contained"
-                            fullWidth="true"
-                            size="large"
-                            sx={{
-                              mt: "15px",
-                              mr: "20px",
-                              borderRadius: 28,
-                              color: "#ffffff",
-                              minWidth: "170px",
-                              backgroundColor: "#FF9A01",
-                            }}
-                          >
-                            Send Reset Link
-                          </Button>
-                        </Grid>
-                        <Grid item xs={12} sx={{ ml: "3em", mr: "3em" }}>
-                          <Stack direction="row" spacing={2}>
-                            <Typography
-                              variant="body1"
-                              component="span"
-                              style={{ marginTop: "10px" }}
-                            >
-                              Login to your Account.
-                              <span
-                                style={{ color: "#beb4fb", cursor: "pointer" }}
-                                onClick={() => {
-                                  navigate("/");
-                                }}
-                              >
-                                {" "}Sign In
-                              </span>
-                            </Typography>
-                          </Stack>
-                        </Grid>
-                      </Grid>
-                    </Box>
-                  </Container>
-                </ThemeProvider>
+                      Login to your Account.
+                      <span
+                        style={{ color: "#beb4fb", cursor: "pointer" }}
+                        onClick={() => {
+                          navigate("/");
+                        }}
+                      >
+                        {" "}
+                        Sign In
+                      </span>
+                    </Typography>
+                  </Stack>
+                </Grid>
+              </Grid>
+            </Box>
+          </Container>
+        </ThemeProvider>
       </>
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -161,7 +156,7 @@ export default function ForgotPassword() {
           Failed! Enter correct username and password.
         </Alert>
       </Snackbar>
-     <BackgroundSheet page={<ForgotPassword/>}/>
+      <BackgroundSheet page={<ForgotPassword />} />
     </>
   );
 }
