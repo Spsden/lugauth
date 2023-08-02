@@ -68,7 +68,7 @@ export default function Login() {
 				'Content-Type': 'application/json',
 			},
 			method: 'POST',
-		}).then((response) => response.json());
+		}).then((response) => { navigate("/logged-page",{ state:response.text });});
 
 	const handleSignMessage = async ({
 		publicAddress,
@@ -150,6 +150,8 @@ export default function Login() {
 				window.alert(err);
 				setLoading(false);
 			});
+
+     
 	};
 
   const postUserName = (email, password) => {
