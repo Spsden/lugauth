@@ -1,11 +1,10 @@
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import bg from "./bg/login.svg";
 
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
+import { Button } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Checkbox from "@mui/material/Checkbox";
@@ -17,14 +16,10 @@ import MuiAlert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../components/Buttons/CustomButton";
-import CustomIconButton from "../components/Buttons/CustomIconButton";
-import {
-  Google,
-  CurrencyBitcoinSharp,
-  CurrencyBitcoinRounded,
-} from "@mui/icons-material";
+import { Google, CurrencyBitcoinRounded } from "@mui/icons-material";
 import BackgroundSheet from "../components/BackgroundSheet/BackgroundSheet";
 import CustomTextField from "../components/TextField/CustomTextField";
+import Web3 from 'web3';
 
 const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -52,6 +47,7 @@ const center = {
   top: "50%",
   left: "37%",
 };
+let web3 = undefined; // Will hold the web3 instance
 
 export default function Login() {
   const [open, setOpen] = useState(false);
@@ -60,10 +56,152 @@ export default function Login() {
   const horizontal = "right";
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false); // Loading button state
+
+  const handleAuthenticate = ({
+		publicAddress,
+		signature,
+	}) =>
+		fetch(`${process.env.REACT_APP_BACKEND_URL}/auth`, {
+			body: JSON.stringify({ publicAddress, signature }),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			method: 'POST',
+		}).then((response) => response.json());
+
+	const handleSignMessage = async ({
+		publicAddress,
+		nonce,
+	}) => {
+		try {
+			const signature = await web3.eth.personal.sign(
+				`I am signing my one-time nonce: ${nonce}`,
+				publicAddress,
+				'' // MetaMask will ignore the password argument here
+			);
+
+			return { publicAddress, signature };
+		} catch (err) {
+			throw new Error(
+				'You need to sign the message to be able to log in.'
+			);
+		}
+	};
+
+
+  
+
+  const handleClick = async () => {
+    console.log("clicked")
+		// Check if MetaMask is installed
+		if (!(window).ethereum) {
+			window.alert('Please install MetaMask first.');
+			return;
+		}
+
+		if (!web3) {
+			try {
+				// Request account access if needed
+				await (window ).ethereum.enable();
+
+				// We don't know window.web3 version, so we use our own instance of Web3
+				// with the injected provider given by MetaMask
+				web3 = new Web3((window ).ethereum);
+			} catch (error) {
+				window.alert('You need to allow MetaMask.');
+				return;
+			}
+		}
+
+		const coinbase = await web3.eth.getCoinbase();
+		if (!coinbase) {
+			window.alert('Please activate MetaMask first.');
+			return;
+		}
+
+		const publicAddress = coinbase.toLowerCase();
+		setLoading(true);
+
+    const handleSignup = (publicAddress) =>
+		fetch(`${process.env.REACT_APP_BACKEND_URL}/users`, {
+			body: JSON.stringify({ publicAddress }),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			method: 'POST',
+		}).then((response) => response.json());
+
+		
+		fetch(
+			`${process.env.REACT_APP_BACKEND_URL}/users?publicAddress=${publicAddress}`
+		)
+			.then((response) => response.json())
+			
+			.then((users) =>
+				users.length ? users[0] : handleSignup(publicAddress)
+			)
+			
+			.then(handleSignMessage)
+	
+			.then(handleAuthenticate)
+			
+			.catch((err) => {
+				window.alert(err);
+				setLoading(false);
+			});
+	};
+
+  const postUserName = (email, password) => {
+    // console.log(
+    //   JSON.stringify({
+    //     username: email,
+    //     email: email,
+    //     password: password,
+    //   })
+    // );
+
+    fetch("http://localhost:3000/api/v1/auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+       
+        email: email,
+        password: password,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then(async(response) => {
+        let data = await response.json();
+        console.log(data)
+    
+        if(response.status === 200){
+          
+          navigate("/logged-page",{ state: data });
+
+        }
+        
+        
+
+      }).then(()=> {
+        console.log("hellloe")
+      })
+      
+
+    
+  };
+
   const handleSubmit = async (event) => {
     setOpen(true);
     event.preventDefault();
+    
     const data = new FormData(event.currentTarget);
+    const values = data.values();
+    const username = data.get("email");
+    const password = data.get("password");
+
+    postUserName(username, password);
   };
 
   const handleClose = (event, reason) => {
@@ -91,6 +229,28 @@ export default function Login() {
                 Sign In
               </Typography>
             </Box>
+
+            <Button
+      variant="contained"
+      fullWidth="true"
+      size="large"
+      onClick={handleClick}
+    
+      sx={{
+        mt: "15px",
+        mr: "20px",
+        borderRadius: 28,
+        color: "#ffffff",
+        minWidth: "170px",
+
+        backgroundColor: "#FF9A01",
+      }}
+    >
+    
+      <Box width={10}></Box>
+     Sign in with metamask
+    </Button>
+           
 
             <Box
               component="form"
@@ -136,14 +296,7 @@ export default function Login() {
 
                 <Grid item xs={12} sx={{ ml: "5em", mr: "5em" }}>
                   <CustomButton title={"Login"} />
-                  <CustomButton
-                    title={"   Login with google"}
-                    icon={<Google marginRight={40} />}
-                  />
-                  <CustomButton
-                    title={"   Login with metamask"}
-                    icon={<CurrencyBitcoinRounded marginRight={40} />}
-                  />
+                 
                 </Grid>
 
                 <Grid item xs={12} sx={{ ml: "3em", mr: "3em" }}>

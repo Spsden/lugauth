@@ -54,10 +54,48 @@ export default function Register() {
   const horizontal = "right";
   const navigate = useNavigate();
 
+  const [userToke, setuserToken] = useState(null);
+  const [receiveduser, setreceiveduser] = useState(null);
+
+  const postUserName = (email, password) => {
+    console.log(
+      JSON.stringify({
+        username: email,
+        email: email,
+        password: password,
+      })
+    );
+
+    fetch("http://localhost:3000/api/v1/auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        username: email,
+        email: email,
+        password: password,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        setuserToken(json.token);
+        setreceiveduser(json.user);
+      });
+
+    navigate("/");
+  };
+
   const handleSubmit = async (event) => {
     setOpen(true);
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+
+    // const values = data.values();
+    const username = data.get("email");
+    const password = data.get("password");
+
+    postUserName(username, password);
   };
 
   const handleClose = (event, reason) => {
@@ -70,6 +108,22 @@ export default function Register() {
   function TransitionLeft(props) {
     return <Slide {...props} direction="left" />;
   }
+
+  // const [username, setusername] = useState(null);
+  // const [password, setpassword] = useState(null);
+  // const [passCheck,setPassCheck] = useState(null);
+
+  // const handleUserName = (user)=>{
+  //   setusername(user)
+
+  // }
+  // const handlePassword = (pass)=>{
+
+  //   setpassword(pass)
+
+  // }
+  // console.log(username)
+  // console.log(password)
 
   const RegisterPage = () => {
     return (
@@ -92,12 +146,14 @@ export default function Register() {
           >
             <Grid container spacing={1}>
               <CustomTextField
+                // callback = {handleUserName}
                 autoComplete="email"
                 id="email"
                 label="Username"
                 name="email"
               />
               <CustomTextField
+                // callback = {handlePassword}
                 name="password"
                 label="Password"
                 type="password"
@@ -105,6 +161,7 @@ export default function Register() {
                 autoComplete="new-password"
               />
               <CustomTextField
+                //  callback = {handlePassword}
                 name="confirmpassword"
                 label="Confirm Password"
                 type="password"

@@ -7,6 +7,7 @@ const CustomButton = ({ title, icon }) => {
       variant="contained"
       fullWidth="true"
       size="large"
+      type="submit"
     
       sx={{
         mt: "15px",
